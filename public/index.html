@@ -1,0 +1,1543 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Zero Violations — ALGO GROUP</title>
+
+  <style>
+    :root{
+      --brand:#0B7A4B;
+      --bg1:#EAF5EF;
+      --bg2:#DCEDE4;
+      --panel:rgba(11,122,75,0.12);
+      --panel2:rgba(11,122,75,0.09);
+      --text:rgba(0,0,0,0.90);
+      --muted:rgba(0,0,0,0.60);
+      --border:rgba(0,0,0,0.10);
+      --shadow:0 18px 60px rgba(0,0,0,0.12);
+      --radius:18px;
+
+      --accent: var(--brand);
+      --fontScale: 1;
+    }
+    html[data-theme="night"]{
+      --bg1:#050D09;
+      --bg2:#030806;
+      --panel:rgba(11,122,75,0.20);
+      --panel2:rgba(255,255,255,0.06);
+      --text:rgba(255,255,255,0.92);
+      --muted:rgba(255,255,255,0.65);
+      --border:rgba(255,255,255,0.14);
+      --shadow:0 18px 60px rgba(0,0,0,0.58);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font-size: calc(16px * var(--fontScale));
+      background:
+        radial-gradient(1200px 700px at 20% -10%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 60%),
+        radial-gradient(900px 500px at 80% 0%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 55%),
+        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+    .container{max-width:1200px;margin:0 auto;padding:18px 16px 60px; position:relative; z-index:1;}
+    .topbar{
+      display:grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items:center;
+      gap:12px;
+      padding:10px 6px;
+      position:relative;
+      z-index:50;
+    }
+    .brand{display:flex;align-items:center;gap:12px;justify-self:start}
+    .logo{
+      width:44px;height:44px;border-radius:12px;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.10);
+      overflow:hidden;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .brand h1{margin:0;font-size:16px;font-weight:950;line-height:1.1}
+    .brand small{display:block;margin-top:2px;color:var(--muted);font-weight:650}
+
+    .centerControls{justify-self:center;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .rightControls{justify-self:end;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .btn{
+      cursor:pointer;
+      border:1px solid var(--border);
+      background:rgba(255,255,255,0.35);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      font-weight:950;
+      font-size:13px;
+      user-select:none;
+      transition:transform 120ms ease, filter 120ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    html[data-theme="night"] .btn{background:rgba(255,255,255,0.06)}
+    .btn:hover{transform:translateY(-1px); filter:brightness(1.02)}
+    .btn:active{transform:translateY(0px) scale(0.99)}
+    .btn.primary{
+      background:linear-gradient(135deg,var(--accent), color-mix(in oklab, var(--accent) 70%, black));
+      border-color:color-mix(in oklab, var(--accent) 40%, transparent);
+      color:white;
+    }
+    .btn.small{padding:8px 10px;border-radius:10px;font-size:12px}
+    .btn:disabled{opacity:.55; cursor:not-allowed; transform:none;}
+
+    .selectWrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:8px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.35);
+      backdrop-filter: blur(10px);
+      transition: transform 160ms ease, box-shadow 200ms ease, border-color 200ms ease;
+    }
+    html[data-theme="night"] .selectWrap{ background: rgba(255,255,255,0.06); }
+    .selectWrap.pulse{
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px color-mix(in oklab, var(--accent) 22%, transparent);
+      border-color: color-mix(in oklab, var(--accent) 30%, transparent);
+    }
+    .select{
+      border:1px solid rgba(0,0,0,0.10);
+      border-radius:12px;
+      padding:8px 10px;
+      background: rgba(255,255,255,0.75);
+      color: var(--text);
+      font-weight:950;
+      outline:none;
+      cursor:pointer;
+      min-width:110px;
+    }
+    html[data-theme="night"] .select{
+      background: rgba(10,20,14,0.75);
+      border:1px solid rgba(255,255,255,0.14);
+      color: var(--text);
+    }
+    .pill{
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid color-mix(in oklab, var(--accent) 25%, transparent);
+      background: color-mix(in oklab, var(--accent) 14%, transparent);
+      font-weight:950;
+      font-size:12px;
+      white-space:nowrap;
+      transition: transform 120ms ease;
+    }
+    .pill.bump{transform:scale(1.02)}
+
+    .card{
+      background:
+        radial-gradient(900px 400px at 20% 0%, color-mix(in oklab, var(--accent) 22%, transparent), transparent 60%),
+        radial-gradient(900px 400px at 90% 20%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 60%),
+        linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+    }
+    .inner{padding:18px}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:18px;
+      margin-top:12px;
+    }
+
+    .hero{min-height:170px; position:relative;
+      background:
+        radial-gradient(800px 350px at 25% 15%, color-mix(in oklab, var(--accent) 65%, transparent), transparent 60%),
+        radial-gradient(700px 280px at 75% 40%, color-mix(in oklab, var(--accent) 35%, transparent), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04));
+    }
+    .heroContent{
+      position:absolute; inset:0; padding:18px;
+      display:flex; flex-direction:column; justify-content:flex-end; gap:8px;
+    }
+    .title{margin:0;font-size:28px;font-weight:1000;letter-spacing:-0.2px}
+    .subtitle{margin:0;color:var(--muted);font-size:14px;max-width:70ch}
+
+    .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    @media (max-width:600px){.kpis{grid-template-columns:1fr}}
+    .kpi{
+      padding:14px;border-radius:16px;
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.35), rgba(255,255,255,0.10));
+    }
+    html[data-theme="night"] .kpi{
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+    }
+    .kpi.winner{
+      border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+      background:
+        radial-gradient(600px 200px at 20% 0%, color-mix(in oklab, var(--accent) 28%, transparent), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.08));
+    }
+    .kpi .label{color:var(--muted);font-size:12px;margin-bottom:4px}
+    .kpi .value{font-size:20px;font-weight:1000}
+    .kpi .hint{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
+    .divider{height:1px;background:var(--border);margin:14px 0}
+    .small{font-size:12px;color:var(--muted);line-height:1.4}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";}
+
+    .list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+    .list li{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px;border-radius:14px;
+      border:1px solid rgba(0,0,0,0.10);
+      background:rgba(255,255,255,0.22);
+      font-size:13px;
+    }
+    html[data-theme="night"] .list li{
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.04);
+    }
+    .rank{font-weight:1000}
+    .table-wrap{
+      max-height: 72vh;
+      overflow:auto;
+      border-radius:14px;
+    }
+    table{width:100%;border-collapse:collapse;min-width:1180px}
+    th,td{
+      padding:12px 10px;
+      text-align:left;
+      font-size:13px;
+      border-bottom:1px solid rgba(0,0,0,0.08);
+      white-space:nowrap;
+      vertical-align:top;
+    }
+    html[data-theme="night"] th, html[data-theme="night"] td{border-bottom:1px solid rgba(255,255,255,0.10)}
+    th{
+      color:var(--muted);
+      font-weight:1000;
+      position:sticky;
+      top:0;
+      background:rgba(233,245,239,0.92);
+      backdrop-filter:blur(12px);
+      z-index:2;
+    }
+    html[data-theme="night"] th{background:rgba(5,10,7,0.78)}
+    .status{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;border:1px solid var(--border);
+      background:rgba(255,255,255,0.22);font-weight:950
+    }
+    html[data-theme="night"] .status{background:rgba(255,255,255,0.06)}
+    .status.good{border-color:color-mix(in oklab, var(--accent) 40%, transparent)}
+    .status.bad{border-color:rgba(255,80,80,0.35)}
+    .cell-input{
+      width:110px;
+      border:1px solid rgba(0,0,0,0.18);
+      background:rgba(255,255,255,0.65);
+      color:var(--text);
+      border-radius:10px;
+      padding:6px 8px;
+      outline:none;
+      font-weight:950;
+    }
+    html[data-theme="night"] .cell-input{
+      border:1px solid rgba(255,255,255,0.18);
+      background:rgba(0,0,0,0.18);
+      color:var(--text);
+    }
+    footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+    .toast{
+      display:none;margin-top:10px;padding:10px 12px;border-radius:12px;
+      border:1px solid color-mix(in oklab, var(--accent) 35%, transparent);
+      background: color-mix(in oklab, var(--accent) 14%, transparent);
+      font-weight:950;
+    }
+
+    /* Snow */
+    #snowCanvas{
+      position:fixed; inset:0; width:100%; height:100%;
+      pointer-events:none; z-index:5;
+      opacity:0.75; transition: opacity 200ms ease;
+    }
+
+    /* Profile */
+    #profileDock{ position:fixed; left:18px; bottom:18px; z-index:120; }
+    .profileBtn{
+      width:48px;height:48px;border-radius:16px;
+      border:1px solid var(--border);
+      background: linear-gradient(135deg, color-mix(in oklab, var(--accent) 55%, white), color-mix(in oklab, var(--accent) 75%, black));
+      box-shadow: 0 14px 40px rgba(0,0,0,0.18);
+      display:flex;align-items:center;justify-content:center;
+      cursor:pointer; user-select:none;
+    }
+    .profileBtn span{font-size:20px}
+
+    #profileMenu{
+      position:fixed; left:18px; bottom:78px; z-index:121;
+      width:240px; border-radius:18px; border:1px solid var(--border);
+      background: rgba(255,255,255,0.78); backdrop-filter: blur(14px);
+      box-shadow: 0 22px 70px rgba(0,0,0,0.18);
+      overflow:hidden;
+      transform-origin:left bottom;
+      transform:scale(0.96) translateY(8px);
+      opacity:0; pointer-events:none;
+      transition: transform 160ms ease, opacity 160ms ease;
+    }
+    html[data-theme="night"] #profileMenu{ background: rgba(10,20,14,0.82); box-shadow: 0 22px 70px rgba(0,0,0,0.65); }
+    #profileMenu.open{ transform:scale(1) translateY(0); opacity:1; pointer-events:auto; }
+
+    .menuHead{ padding:12px; border-bottom:1px solid var(--border); display:flex; gap:10px; align-items:center;}
+    .menuAvatar{ width:34px;height:34px;border-radius:12px;border:1px solid color-mix(in oklab, var(--accent) 35%, transparent); background: color-mix(in oklab, var(--accent) 18%, transparent); display:flex;align-items:center;justify-content:center; font-weight:1000;}
+    .menuHead b{font-size:13px}
+    .menuHead small{display:block;color:var(--muted);font-weight:800;font-size:11px;margin-top:2px}
+
+    .menuItem{
+      width:100%; border:0; background:transparent; color:var(--text);
+      padding:12px; font-weight:950; cursor:pointer;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .menuItem:hover{ background: rgba(0,0,0,0.05); }
+    html[data-theme="night"] .menuItem:hover{ background: rgba(255,255,255,0.06); }
+    .menuItem.danger{ color:#d22; }
+    html[data-theme="night"] .menuItem.danger{ color:#ff7a7a; }
+
+    /* Modal */
+    #modalBackdrop{ position:fixed; inset:0; background: rgba(0,0,0,0.35); z-index:130; opacity:0; pointer-events:none; transition:opacity 160ms ease; }
+    #modalBackdrop.open{ opacity:1; pointer-events:auto; }
+    #settingsModal{
+      position:fixed; right:20px; top:18px; z-index:131;
+      width:min(420px, calc(100vw - 24px));
+      border-radius:18px; border:1px solid var(--border);
+      background: rgba(255,255,255,0.86); backdrop-filter: blur(16px);
+      box-shadow: 0 28px 90px rgba(0,0,0,0.20);
+      transform: translateY(-6px) scale(0.98);
+      opacity:0; pointer-events:none;
+      transition: opacity 160ms ease, transform 160ms ease;
+      overflow:hidden;
+    }
+    html[data-theme="night"] #settingsModal{ background: rgba(10,20,14,0.86); box-shadow: 0 28px 90px rgba(0,0,0,0.70); }
+    #settingsModal.open{ opacity:1; pointer-events:auto; transform: translateY(0) scale(1); }
+    .modalTop{ padding:14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:10px;}
+    .modalTop b{font-size:15px}
+    .iconBtn{
+      width:34px;height:34px;border-radius:12px;border:1px solid var(--border);
+      background: rgba(255,255,255,0.35); cursor:pointer; font-weight:1000;
+      display:flex;align-items:center;justify-content:center;
+    }
+    html[data-theme="night"] .iconBtn{ background: rgba(255,255,255,0.06); }
+    .modalBody{ padding:12px; display:flex; flex-direction:column; gap:10px; }
+    .settingBlock{ border:1px solid var(--border); border-radius:16px; background: rgba(255,255,255,0.30); overflow:hidden; }
+    html[data-theme="night"] .settingBlock{ background: rgba(255,255,255,0.06); }
+    .blockRow{ padding:12px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .blockRow + .blockRow{ border-top:1px solid var(--border); }
+    .blockTitle{ display:flex; align-items:center; gap:10px; font-weight:950; font-size:13px; }
+    .blockTitle small{ display:block; font-weight:800; color:var(--muted); margin-top:2px; font-size:11px; }
+    .seg{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .seg button{
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.45);
+      color: var(--text);
+      border-radius:12px;
+      padding:9px 12px;
+      font-weight:950;
+      cursor:pointer;
+      min-width:90px;
+    }
+    html[data-theme="night"] .seg button{ background: rgba(255,255,255,0.06); }
+    .seg button.active{ border-color: color-mix(in oklab, var(--accent) 40%, transparent); background: color-mix(in oklab, var(--accent) 18%, transparent); }
+    .toggle{
+      width:46px;height:28px;border-radius:999px;
+      border:1px solid var(--border);
+      background: rgba(0,0,0,0.06);
+      position:relative;
+      cursor:pointer;
+      flex:0 0 auto;
+    }
+    html[data-theme="night"] .toggle{ background: rgba(255,255,255,0.06); }
+    .toggle::after{
+      content:"";
+      position:absolute;
+      width:22px;height:22px;
+      border-radius:999px;
+      top:2px; left:2px;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.18);
+      transition: transform 160ms ease;
+    }
+    .toggle.on{
+      background: color-mix(in oklab, var(--accent) 28%, transparent);
+      border-color: color-mix(in oklab, var(--accent) 35%, transparent);
+    }
+    .toggle.on::after{ transform: translateX(18px); }
+    .swatches{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+    .swatch{
+      width:26px;height:26px;border-radius:999px;
+      border:2px solid transparent;
+      cursor:pointer;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+    }
+    .swatch.active{
+      border-color: rgba(255,255,255,0.85);
+      outline: 2px solid color-mix(in oklab, var(--accent) 35%, transparent);
+      outline-offset: 2px;
+    }
+    .fontControls{ display:flex; align-items:center; gap:10px; width:100%; }
+    .fontControls .miniBtn{
+      width:34px;height:34px; border-radius:12px; border:1px solid var(--border);
+      background: rgba(255,255,255,0.35);
+      cursor:pointer; font-weight:1000;
+      display:flex; align-items:center; justify-content:center;
+    }
+    html[data-theme="night"] .fontControls .miniBtn{ background: rgba(255,255,255,0.06); }
+    .fontControls input[type="range"]{ width:100%; }
+    .fontValue{ min-width:50px; text-align:right; font-weight:950; color:var(--muted); font-size:12px; }
+
+    /* LOGIN OVERLAY */
+    #loginOverlay{
+      position:fixed; inset:0; z-index:200;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:
+        radial-gradient(1000px 600px at 20% 10%, color-mix(in oklab, var(--accent) 25%, transparent), transparent 60%),
+        radial-gradient(900px 520px at 80% 0%, color-mix(in oklab, var(--accent) 18%, transparent), transparent 60%),
+        rgba(0,0,0,0.35);
+      backdrop-filter: blur(12px);
+    }
+    #loginOverlay.show{ display:flex; }
+    .loginCard{
+      width:min(520px, 100%);
+      border-radius:22px;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.86);
+      box-shadow: 0 30px 120px rgba(0,0,0,0.25);
+      overflow:hidden;
+    }
+    html[data-theme="night"] .loginCard{
+      background: rgba(10,20,14,0.86);
+      box-shadow: 0 30px 120px rgba(0,0,0,0.70);
+    }
+    .loginTop{
+      padding:16px;
+      border-bottom:1px solid var(--border);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .loginTop b{ font-size:16px; }
+    .loginBody{ padding:16px; display:flex; flex-direction:column; gap:10px; }
+    .loginField{
+      display:flex; flex-direction:column; gap:6px;
+      font-weight:900; font-size:13px;
+    }
+    .loginInput{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px 12px;
+      font-weight:900;
+      background: rgba(255,255,255,0.35);
+      color: var(--text);
+      outline:none;
+    }
+    html[data-theme="night"] .loginInput{
+      background: rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.14);
+    }
+    .loginHint{ color:var(--muted); font-size:12px; line-height:1.35; }
+    .loginError{ display:none; padding:10px 12px; border-radius:12px; border:1px solid rgba(255,80,80,0.35); background: rgba(255,80,80,0.10); font-weight:950; }
+    .loginError.show{ display:block; }
+  </style>
+</head>
+
+<body>
+  <canvas id="snowCanvas" aria-hidden="true"></canvas>
+
+  <!-- LOGIN -->
+  <div id="loginOverlay" aria-hidden="true">
+    <div class="loginCard">
+      <div class="loginTop">
+        <b>🔒 Protected Access</b>
+        <button class="iconBtn" id="loginHelpBtn" title="Show credentials">?</button>
+      </div>
+      <div class="loginBody">
+        <div class="loginError" id="loginError">Invalid username or password.</div>
+
+        <div class="loginField">
+          Username
+          <input class="loginInput" id="loginUser" placeholder="Username" autocomplete="username" />
+        </div>
+
+        <div class="loginField">
+          Password
+          <input class="loginInput" id="loginPass" placeholder="Password" type="password" autocomplete="current-password" />
+        </div>
+
+        <button class="btn primary" id="loginBtn">Login</button>
+
+        <div class="loginHint">
+          ✅ Each block account sees ONLY its own block.<br/>
+          ✅ Settings + saved results are stored per-account in localStorage.<br/>
+          ✅ Admin sees ALL blocks.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile -->
+  <div id="profileDock">
+    <div class="profileBtn" id="btnProfile" title="Profile">
+      <span>👤</span>
+    </div>
+  </div>
+
+  <div id="profileMenu" aria-hidden="true">
+    <div class="menuHead">
+      <div class="menuAvatar" id="menuAvatar">U</div>
+      <div>
+        <b id="menuName">Profile</b>
+        <small id="menuRole">—</small>
+      </div>
+    </div>
+    <button class="menuItem" id="menuSettings"><span>⚙️ Settings</span><span>›</span></button>
+    <button class="menuItem danger" id="menuLogout"><span>🚪 Log out</span><span>›</span></button>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="modalBackdrop"></div>
+  <div id="settingsModal" aria-hidden="true">
+    <div class="modalTop">
+      <b>Theme Customizer</b>
+      <button class="iconBtn" id="closeSettings" title="Close">✕</button>
+    </div>
+
+    <div class="modalBody">
+      <div class="settingBlock">
+        <div class="blockRow">
+          <div class="blockTitle">💬 <div>Theme<small>How the website looks</small></div></div>
+          <div class="seg" id="themeSeg">
+            <button type="button" data-mode="light">☀️ Light</button>
+            <button type="button" data-mode="dark">🌙 Dark</button>
+            <button type="button" data-mode="system">💻 System</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settingBlock">
+        <div class="blockRow">
+          <div class="blockTitle">🎨 <div>Colors<small>Accent color</small></div></div>
+          <div class="swatches" id="swatches"></div>
+        </div>
+      </div>
+
+      <div class="settingBlock">
+        <div class="blockRow">
+          <div class="blockTitle">❄️ <div>Weather Effects<small>Snow on/off</small></div></div>
+          <div class="toggle" id="toggleSnow" role="switch" aria-checked="true"></div>
+        </div>
+      </div>
+
+      <div class="settingBlock">
+        <div class="blockRow">
+          <div class="blockTitle">🔤 <div>Font Size<small>Make text bigger/smaller</small></div></div>
+          <div class="fontControls">
+            <button class="miniBtn" id="fontMinus" type="button">−</button>
+            <input id="fontRange" type="range" min="0.85" max="1.25" step="0.05" value="1" />
+            <button class="miniBtn" id="fontPlus" type="button">+</button>
+            <div class="fontValue" id="fontValue">100%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" title="ALGO GROUP">
+          <div style="font-weight:1000;">A</div>
+        </div>
+        <div>
+          <h1>ALGO GROUP</h1>
+          <small id="topSubtitle">Zero Violations — Monthly & Quarterly Leaderboard</small>
+        </div>
+      </div>
+
+      <div class="centerControls">
+        <div class="selectWrap" id="selectWrap" title="Pick Year → Quarter → Month">
+          <select id="yearSel" class="select"></select>
+          <select id="quarterSel" class="select">
+            <option value="1">Q1</option><option value="2">Q2</option><option value="3">Q3</option><option value="4">Q4</option>
+          </select>
+          <select id="monthSel" class="select"></select>
+          <span class="pill" id="viewPill">Month View</span>
+        </div>
+        <button class="btn small" id="btnToggleView">View Quarter</button>
+      </div>
+
+      <div class="rightControls">
+        <button class="btn" id="btnDownloadExcel">Download Excel</button>
+        <button class="btn" id="btnDownloadPdf">Download PDF</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="hero">
+          <div class="heroContent">
+            <h2 class="title">Zero Violations</h2>
+            <p class="subtitle" id="periodHint"></p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">
+              <button class="btn primary" id="btnEditToggle">Edit Numbers</button>
+              <button class="btn" id="btnCancelEdits" style="display:none;">Cancel</button>
+              <button class="btn primary" id="btnSaveDraft" style="display:none;">Save Draft</button>
+              <button class="btn primary" id="btnPublish" style="display:none;">Publish</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="inner">
+          <div class="kpis">
+            <div class="kpi winner">
+              <div class="label">Winner (Best / Lowest KPI)</div>
+              <div class="value" id="kpiWinner">—</div>
+              <div class="hint">Winner = lowest FINAL KPI score.</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Lowest Performer (Worst / Highest KPI)</div>
+              <div class="value" id="kpiWorst">—</div>
+              <div class="hint">Worst = highest FINAL KPI score.</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+          <div class="small" id="editHint"></div>
+          <div class="toast" id="saveToast"></div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:18px;">
+        <div class="inner">
+          <h2 style="margin:0 0 10px;font-size:18px;font-weight:1000;">Top blocks (selected view)</h2>
+          <div class="small" style="margin-bottom:10px;">Sorted by KPI: lowest = best.</div>
+          <ul class="list" id="topList"></ul>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:18px;">
+        <div class="inner">
+          <h2 style="margin:0 0 10px;font-size:18px;font-weight:1000;">Leaderboard</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>BLOCK</th>
+                  <th>TEAM</th>
+                  <th>TRUCKS</th>
+                  <th>CLEAN</th>
+                  <th>TOTAL</th>
+                  <th>VIOL. PTS</th>
+                  <th>STAFF/TRUCKS</th>
+                  <th>CLEAN PEN</th>
+                  <th>VIOL RATE PEN</th>
+                  <th>VIOL POINT PEN</th>
+                  <th>FINAL KPI</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <footer>Built for ALGO GROUP · Zero Violations</footer>
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script>
+  // =========================
+  // CONFIG
+  // =========================
+  const API_BASE = "http://localhost:5050"; // change if you host backend elsewhere
+  const AUTH_TOKEN_KEY = "zv_backend_token";
+  const ME_KEY = "zv_backend_me";
+
+  // Blocks fixed (all visible for both accounts)
+  const ALL_BLOCK_NAMES = [
+    "A BLOCK","B BLOCK","C BLOCK","D BLOCK","A1 BLOCK","B1 BLOCK","MO BLOCK","FIRST B BLOCK"
+  ];
+
+  // =========================
+  // API HELPERS
+  // =========================
+  function getToken(){ return localStorage.getItem(AUTH_TOKEN_KEY) || ""; }
+  function setToken(t){ localStorage.setItem(AUTH_TOKEN_KEY, t); }
+  function clearToken(){ localStorage.removeItem(AUTH_TOKEN_KEY); localStorage.removeItem(ME_KEY); }
+
+  async function api(path, opts={}){
+    const headers = Object.assign({ "Content-Type":"application/json" }, opts.headers || {});
+    const token = getToken();
+    if(token) headers.Authorization = "Bearer " + token;
+
+    const res = await fetch(API_BASE + path, { ...opts, headers });
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok) throw new Error(data.error || "Request failed");
+    return data;
+  }
+
+  // =========================
+  // LOGIN UI
+  // =========================
+  const loginOverlay = document.getElementById("loginOverlay");
+  const loginUser = document.getElementById("loginUser");
+  const loginPass = document.getElementById("loginPass");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginError = document.getElementById("loginError");
+  const loginHelpBtn = document.getElementById("loginHelpBtn");
+
+  function showLogin(){
+    loginOverlay.classList.add("show");
+    loginError.classList.remove("show");
+    loginUser.value = "";
+    loginPass.value = "";
+    setTimeout(()=>loginUser.focus(), 50);
+  }
+  function hideLogin(){
+    loginOverlay.classList.remove("show");
+  }
+
+  loginHelpBtn.addEventListener("click", ()=>{
+    alert(`2 accounts:
+Admin:  admin / Admin@12345
+Viewer: viewer / Viewer@12345`);
+  });
+
+  async function doLogin(){
+    const u = (loginUser.value||"").trim();
+    const p = (loginPass.value||"").trim();
+    try{
+      const out = await api("/api/auth/login", {
+        method:"POST",
+        body: JSON.stringify({ username:u, password:p })
+      });
+      setToken(out.token);
+      localStorage.setItem(ME_KEY, JSON.stringify(out.user));
+      hideLogin();
+      await boot();
+    }catch(e){
+      loginError.classList.add("show");
+    }
+  }
+  loginBtn.addEventListener("click", doLogin);
+  loginPass.addEventListener("keydown",(e)=>{ if(e.key==="Enter") doLogin(); });
+  loginUser.addEventListener("keydown",(e)=>{ if(e.key==="Enter") doLogin(); });
+
+  // =========================
+  // PROFILE MENU + SETTINGS
+  // =========================
+  const btnProfile = document.getElementById("btnProfile");
+  const profileMenu = document.getElementById("profileMenu");
+  const menuSettings = document.getElementById("menuSettings");
+  const menuLogout = document.getElementById("menuLogout");
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const settingsModal = document.getElementById("settingsModal");
+  const closeSettings = document.getElementById("closeSettings");
+
+  function openProfileMenu(){ profileMenu.classList.add("open"); }
+  function closeProfileMenu(){ profileMenu.classList.remove("open"); }
+
+  btnProfile.addEventListener("click",(e)=>{
+    e.stopPropagation();
+    profileMenu.classList.contains("open") ? closeProfileMenu() : openProfileMenu();
+  });
+
+  function openSettings(){
+    closeProfileMenu();
+    modalBackdrop.classList.add("open");
+    settingsModal.classList.add("open");
+    syncThemeSeg();
+    syncSwatches();
+    setSnowEnabled(snowEnabled);
+    applyFontScale(localStorage.getItem(FONT_KEY()) || 1);
+  }
+  function closeSettingsModal(){
+    modalBackdrop.classList.remove("open");
+    settingsModal.classList.remove("open");
+  }
+  menuSettings.addEventListener("click", openSettings);
+  closeSettings.addEventListener("click", closeSettingsModal);
+  modalBackdrop.addEventListener("click", closeSettingsModal);
+
+  document.addEventListener("click",(e)=>{
+    if(profileMenu.classList.contains("open")){
+      const inside = profileMenu.contains(e.target) || btnProfile.contains(e.target);
+      if(!inside) closeProfileMenu();
+    }
+  });
+
+  menuLogout.addEventListener("click", ()=>{
+    closeProfileMenu();
+    if(!confirm("Log out?")) return;
+    clearToken();
+    location.reload();
+  });
+
+  // =========================
+  // THEME + ACCENT + FONT + SNOW
+  // (kept in localStorage but ALSO saved to backend)
+  // =========================
+  let CURRENT_USER = null; // {username, role}
+
+  function systemPrefIsDark(){ return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; }
+  function applyThemeByMode(mode){
+    let theme = "night";
+    if(mode==="light") theme="day";
+    else if(mode==="dark") theme="night";
+    else theme = systemPrefIsDark() ? "night" : "day";
+    document.documentElement.setAttribute("data-theme", theme);
+  }
+
+  const THEME_MODE_KEY = "zv_themeMode";
+  const ACCENT_KEY = "zv_accent";
+  const FONT_KEY = "zv_fontScale";
+  const SNOW_KEY = "zv_snowEnabled";
+
+  function setThemeMode(mode){
+    localStorage.setItem(THEME_MODE_KEY, mode);
+    applyThemeByMode(mode);
+    syncThemeSeg();
+    syncPrefsToBackend();
+  }
+  function syncThemeSeg(){
+    const mode = localStorage.getItem(THEME_MODE_KEY) || "dark";
+    document.querySelectorAll("#themeSeg button").forEach(b=>{
+      b.classList.toggle("active", b.dataset.mode === mode);
+    });
+  }
+
+  const ACCENTS = ["#0B7A4B","#2563EB","#0EA5E9","#F43F5E","#F59E0B","#8B5CF6","#14B8A6"];
+  function applyAccent(hex){
+    document.documentElement.style.setProperty("--accent", hex);
+    localStorage.setItem(ACCENT_KEY, hex);
+    syncSwatches();
+    syncPrefsToBackend();
+  }
+  function syncSwatches(){
+    const cur = localStorage.getItem(ACCENT_KEY) || "#0B7A4B";
+    document.querySelectorAll(".swatch").forEach(el=>{
+      el.classList.toggle("active", el.dataset.color === cur);
+    });
+  }
+
+  function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+  function applyFontScale(v){
+    const val = clamp(Number(v||1), 0.85, 1.25);
+    document.documentElement.style.setProperty("--fontScale", val);
+    localStorage.setItem(FONT_KEY, String(val));
+    document.getElementById("fontRange").value = String(val);
+    document.getElementById("fontValue").textContent = Math.round(val*100) + "%";
+    syncPrefsToBackend();
+  }
+
+  let snowEnabled = true;
+  function setSnowEnabled(on){
+    snowEnabled = !!on;
+    localStorage.setItem(SNOW_KEY, snowEnabled ? "true" : "false");
+    const t = document.getElementById("toggleSnow");
+    t.classList.toggle("on", snowEnabled);
+    t.setAttribute("aria-checked", snowEnabled ? "true" : "false");
+    document.getElementById("snowCanvas").style.opacity = snowEnabled ? "" : "0";
+    syncPrefsToBackend();
+  }
+
+  async function syncPrefsToBackend(){
+    if(!getToken()) return;
+    try{
+      await api("/api/prefs", {
+        method:"POST",
+        body: JSON.stringify({
+          theme_mode: localStorage.getItem(THEME_MODE_KEY) || "dark",
+          accent: localStorage.getItem(ACCENT_KEY) || "#0B7A4B",
+          font_scale: Number(localStorage.getItem(FONT_KEY) || 1),
+          snow_enabled: (localStorage.getItem(SNOW_KEY) ?? "true") === "true"
+        })
+      });
+    }catch(_e){}
+  }
+
+  // Build swatches
+  function buildSwatches(){
+    const wrap = document.getElementById("swatches");
+    wrap.innerHTML="";
+    ACCENTS.forEach(c=>{
+      const d=document.createElement("div");
+      d.className="swatch";
+      d.dataset.color=c;
+      d.style.background=c;
+      d.addEventListener("click", ()=>applyAccent(c));
+      wrap.appendChild(d);
+    });
+  }
+
+  document.querySelectorAll("#themeSeg button").forEach(btn=>{
+    btn.addEventListener("click", ()=>setThemeMode(btn.dataset.mode));
+  });
+  document.getElementById("toggleSnow").addEventListener("click", ()=> setSnowEnabled(!snowEnabled));
+  document.getElementById("fontMinus").addEventListener("click", ()=>{
+    const cur = Number(localStorage.getItem(FONT_KEY) || 1);
+    applyFontScale((cur - 0.05).toFixed(2));
+  });
+  document.getElementById("fontPlus").addEventListener("click", ()=>{
+    const cur = Number(localStorage.getItem(FONT_KEY) || 1);
+    applyFontScale((cur + 0.05).toFixed(2));
+  });
+  document.getElementById("fontRange").addEventListener("input",(e)=> applyFontScale(e.target.value));
+
+  // =========================
+  // DATA + KPI
+  // =========================
+  function makeBaseBlocks(){
+    return ALL_BLOCK_NAMES.map((name, idx)=>({
+      id: String(idx+1),
+      name,
+      teamMembers: 0,
+      trucks: 0,
+      cleanInspections: 0,
+      totalInspections: 0,
+      violationPoints: 0
+    }));
+  }
+
+  function round2(n){ return Math.round(n*100)/100; }
+  function calc(row){
+    const team=Number(row.teamMembers||0);
+    const trucks=Number(row.trucks||0);
+    const clean=Number(row.cleanInspections||0);
+    const total=Number(row.totalInspections||0);
+    const viol=Number(row.violationPoints||0);
+
+    const staffTrucks = trucks===0?0:(team/trucks);
+    const cleanPen = total===0?0:(1-(clean/total))*3;
+    const violRatePen = total===0?0:(viol/total)*4;
+    const violPointPen = viol * violRatePen;
+    const finalKpi = round2(Math.min(cleanPen + violRatePen + violPointPen + (staffTrucks*2), 10));
+
+    let status="❌ Poor";
+    if(finalKpi<=1) status="✅ Perfect";
+    else if(finalKpi<=3) status="🟢 Excellent";
+    else if(finalKpi<=6) status="🟡 Good";
+
+    return {staffTrucks:round2(staffTrucks),cleanPen:round2(cleanPen),violRatePen:round2(violRatePen),violPointPen:round2(violPointPen),finalKpi,status};
+  }
+  function statusClass(status){
+    if(status.includes("Perfect")||status.includes("Excellent")) return "good";
+    if(status.includes("Good")) return "";
+    return "bad";
+  }
+  function escapeHtml(s){
+    return String(s??"").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
+  }
+
+  // =========================
+  // VIEW/UI
+  // =========================
+  const MONTHS = [
+    {n:1, name:"January"}, {n:2, name:"February"}, {n:3, name:"March"},
+    {n:4, name:"April"},   {n:5, name:"May"},      {n:6, name:"June"},
+    {n:7, name:"July"},    {n:8, name:"August"},   {n:9, name:"September"},
+    {n:10,name:"October"}, {n:11,name:"November"}, {n:12,name:"December"},
+  ];
+  const yearSel=document.getElementById("yearSel");
+  const quarterSel=document.getElementById("quarterSel");
+  const monthSel=document.getElementById("monthSel");
+  const viewPill=document.getElementById("viewPill");
+  const btnToggleView=document.getElementById("btnToggleView");
+  const selectWrap=document.getElementById("selectWrap");
+
+  const now=new Date();
+  const defaultYear=now.getFullYear();
+  const defaultQuarter=Math.floor(now.getMonth()/3)+1;
+  const defaultMonth=now.getMonth()+1;
+
+  let ui = { year: defaultYear, quarter: defaultQuarter, month: defaultMonth, view:"month" };
+  let rows=[];
+  let editMode=false;
+  let draftRows=null;
+
+  const btnEdit=document.getElementById("btnEditToggle");
+  const btnCancel=document.getElementById("btnCancelEdits");
+  const btnSaveDraft=document.getElementById("btnSaveDraft");
+  const btnPublish=document.getElementById("btnPublish");
+  const saveToast=document.getElementById("saveToast");
+  const periodHint=document.getElementById("periodHint");
+  const tbody=document.getElementById("tbody");
+
+  function toast(msg){
+    saveToast.textContent=msg;
+    saveToast.style.display="block";
+    clearTimeout(toast._t);
+    toast._t=setTimeout(()=>saveToast.style.display="none",2200);
+  }
+
+  function pulseSelectors(){
+    selectWrap.classList.add("pulse");
+    clearTimeout(pulseSelectors._t);
+    pulseSelectors._t=setTimeout(()=>selectWrap.classList.remove("pulse"),180);
+  }
+  function bumpPill(){
+    viewPill.classList.add("bump");
+    clearTimeout(bumpPill._t);
+    bumpPill._t=setTimeout(()=>viewPill.classList.remove("bump"),180);
+  }
+
+  function monthsForQuarter(q){
+    const start = (q-1)*3 + 1;
+    return [start, start+1, start+2];
+  }
+
+  function fillYears(){
+    const years=[];
+    for(let y=defaultYear-2;y<=defaultYear+2;y++) years.push(y);
+    yearSel.innerHTML="";
+    years.forEach(y=>{
+      const opt=document.createElement("option");
+      opt.value=String(y);
+      opt.textContent=String(y);
+      yearSel.appendChild(opt);
+    });
+  }
+  function fillMonthsByQuarter(){
+    const q=Number(ui.quarter);
+    const months=monthsForQuarter(q);
+    monthSel.innerHTML="";
+    months.forEach(m=>{
+      const mo=MONTHS.find(x=>x.n===m);
+      const opt=document.createElement("option");
+      opt.value=String(m);
+      opt.textContent=mo ? mo.name : `Month ${m}`;
+      monthSel.appendChild(opt);
+    });
+    if(!months.includes(Number(ui.month))) ui.month = months[0];
+  }
+  function syncSelectors(){
+    yearSel.value=String(ui.year);
+    quarterSel.value=String(ui.quarter);
+    fillMonthsByQuarter();
+    monthSel.value=String(ui.month);
+  }
+
+  function isAdmin(){ return CURRENT_USER?.role === "admin"; }
+
+  function updateEditUI(){
+    // viewer never edits
+    if(!isAdmin()){
+      btnEdit.disabled = true;
+      btnEdit.textContent = "View Only";
+      btnCancel.style.display="none";
+      btnSaveDraft.style.display="none";
+      btnPublish.style.display="none";
+      return;
+    }
+
+    if(ui.view==="quarter"){
+      btnEdit.disabled=true;
+      btnEdit.textContent="Quarter View (read-only)";
+      btnCancel.style.display="none";
+      btnSaveDraft.style.display="none";
+      btnPublish.style.display="none";
+      return;
+    }
+
+    btnEdit.disabled=false;
+    btnEdit.textContent=editMode ? "Editing..." : "Edit Numbers";
+    btnCancel.style.display=editMode ? "inline-block":"none";
+    btnSaveDraft.style.display=editMode ? "inline-block":"none";
+    btnPublish.style.display=editMode ? "inline-block":"none";
+  }
+
+  function setView(view){
+    ui.view=view;
+    bumpPill();
+    editMode=false;
+    draftRows=null;
+
+    if(view==="month"){
+      viewPill.textContent="Month View";
+      btnToggleView.textContent="View Quarter";
+      periodHint.textContent = isAdmin()
+        ? "Admin: Edit → Save Draft → Publish (viewer will see published)."
+        : "Viewer: You see only published results.";
+    }else{
+      viewPill.textContent="Quarter View";
+      btnToggleView.textContent="View Month";
+      periodHint.textContent = isAdmin()
+        ? "Quarter view is combined from months (published for viewer, draft/published for admin view calculation uses current scope)."
+        : "Quarter view is combined from published months.";
+    }
+
+    updateEditUI();
+    loadData();
+  }
+
+  btnToggleView.addEventListener("click", ()=>{
+    setView(ui.view==="month" ? "quarter" : "month");
+  });
+
+  btnEdit.addEventListener("click", ()=>{
+    if(!isAdmin()) return;
+    if(ui.view==="quarter") return;
+    editMode=!editMode;
+    draftRows = editMode ? structuredClone(rows) : null;
+    updateEditUI();
+    renderAll();
+  });
+
+  // ✅ Cancel FIXED (reverts and re-renders)
+  btnCancel.addEventListener("click", ()=>{
+    if(!editMode) return;
+    draftRows = structuredClone(rows);
+    renderAll();
+    toast("Canceled ✅ Reverted to last loaded values");
+  });
+
+  async function saveDraftToBackend(){
+    const y=Number(ui.year), m=Number(ui.month);
+    await api("/api/results/month/draft", {
+      method:"POST",
+      body: JSON.stringify({ year:y, month:m, data: structuredClone(draftRows) })
+    });
+  }
+
+  btnSaveDraft.addEventListener("click", async ()=>{
+    if(!isAdmin() || !editMode) return;
+    try{
+      await saveDraftToBackend();
+      toast("Draft saved ✅");
+    }catch(e){
+      toast("Error saving draft ❌");
+    }
+  });
+
+  btnPublish.addEventListener("click", async ()=>{
+    if(!isAdmin() || !editMode) return;
+    try{
+      // ensure draft saved then publish
+      await saveDraftToBackend();
+      const y=Number(ui.year), m=Number(ui.month);
+      await api("/api/results/month/publish", { method:"POST", body: JSON.stringify({ year:y, month:m }) });
+
+      // After publish, reload month (as draft still loaded for admin, but we want reflect stable)
+      rows = structuredClone(draftRows);
+      editMode=false;
+      draftRows=null;
+      updateEditUI();
+      renderAll();
+      toast("Published ✅ Viewer can see now");
+    }catch(e){
+      toast("Publish failed ❌");
+    }
+  });
+
+  function getActiveRows(){ return editMode ? draftRows : rows; }
+
+  // =========================
+  // LOAD DATA RULES:
+  // Admin (month): load DRAFT if exists, else load PUBLISHED, else base
+  // Viewer (month): load PUBLISHED only, else base
+  // Quarter: combine 3 months (same rules per month)
+  // =========================
+  async function fetchMonth(scope, y, m){
+    const out = await api(`/api/results/month?scope=${encodeURIComponent(scope)}&year=${y}&month=${m}`, { method:"GET" });
+    return out.data;
+  }
+
+  function mergeWithBase(data){
+    const base = makeBaseBlocks();
+    if(!data) return base;
+    const byName = new Map(data.map(x => [x.name, x]));
+    return base.map(def => byName.get(def.name) || def);
+  }
+
+  async function loadMonthForRole(y,m){
+    if(isAdmin()){
+      const d = await fetchMonth("draft", y, m);
+      if(d) return mergeWithBase(d);
+      const p = await fetchMonth("published", y, m);
+      if(p) return mergeWithBase(p);
+      return makeBaseBlocks();
+    } else {
+      const p = await fetchMonth("published", y, m);
+      if(p) return mergeWithBase(p);
+      return makeBaseBlocks();
+    }
+  }
+
+  async function combineQuarter(y,q){
+    const months = monthsForQuarter(q);
+    const lists = [];
+    for(const m of months){
+      lists.push(await loadMonthForRole(y,m));
+    }
+    const base = makeBaseBlocks();
+    return base.map(def=>{
+      const rows = lists.map(list => list.find(r=>r.name===def.name) || def);
+
+      const teamVals = rows.map(r=>Number(r.teamMembers||0)).filter(v=>v>0);
+      const truckVals = rows.map(r=>Number(r.trucks||0)).filter(v=>v>0);
+
+      const teamAvg = teamVals.length ? Math.round(teamVals.reduce((a,b)=>a+b,0)/teamVals.length) : 0;
+      const truckAvg = truckVals.length ? Math.round(truckVals.reduce((a,b)=>a+b,0)/truckVals.length) : 0;
+
+      const cleanSum = rows.reduce((s,r)=>s+Number(r.cleanInspections||0),0);
+      const totalSum = rows.reduce((s,r)=>s+Number(r.totalInspections||0),0);
+      const violSum  = rows.reduce((s,r)=>s+Number(r.violationPoints||0),0);
+
+      return { id:def.id, name:def.name, teamMembers:teamAvg, trucks:truckAvg, cleanInspections:cleanSum, totalInspections:totalSum, violationPoints:violSum };
+    });
+  }
+
+  async function loadData(){
+    const y=Number(ui.year), q=Number(ui.quarter), m=Number(ui.month);
+
+    if(ui.view==="month"){
+      rows = await loadMonthForRole(y,m);
+    }else{
+      rows = await combineQuarter(y,q);
+    }
+
+    editMode=false;
+    draftRows=null;
+    updateEditUI();
+    renderAll();
+  }
+
+  yearSel.addEventListener("change", async ()=>{
+    ui.year=Number(yearSel.value);
+    pulseSelectors();
+    await loadData();
+  });
+  quarterSel.addEventListener("change", async ()=>{
+    ui.quarter=Number(quarterSel.value);
+    fillMonthsByQuarter();
+    monthSel.value=String(ui.month);
+    pulseSelectors();
+    await loadData();
+  });
+  monthSel.addEventListener("change", async ()=>{
+    ui.month=Number(monthSel.value);
+    pulseSelectors();
+    if(ui.view==="quarter") return;
+    await loadData();
+  });
+
+  // =========================
+  // RENDER (smooth input)
+  // =========================
+  function renderSummaryTop(){
+    const active=getActiveRows().map(r=>({ ...r, kpi:calc(r)})).sort((a,b)=>a.kpi.finalKpi-b.kpi.finalKpi);
+    const winner=active[0]||null;
+    const worst=active.length?active[active.length-1]:null;
+
+    document.getElementById("kpiWinner").textContent = winner ? winner.name : "—";
+    document.getElementById("kpiWorst").textContent  = worst ? `${worst.name} (${worst.kpi.finalKpi.toFixed(2)})` : "—";
+
+    const hint=document.getElementById("editHint");
+    if(!isAdmin()) hint.textContent="Viewer: read-only (published results only).";
+    else if(ui.view==="quarter") hint.textContent="Quarter view is read-only.";
+    else if(editMode) hint.textContent="Editing ON ✅ Save Draft then Publish.";
+    else hint.textContent="Admin: Click Edit Numbers to edit, then Save Draft and Publish.";
+    const topList=document.getElementById("topList");
+    topList.innerHTML="";
+    active.forEach((r,idx)=>{
+      const li=document.createElement("li");
+      li.innerHTML=`<div><span class="rank">#${idx+1}</span> <b>${escapeHtml(r.name)}</b></div>
+                    <div class="mono"><b>${r.kpi.finalKpi.toFixed(2)}</b></div>`;
+      topList.appendChild(li);
+    });
+  }
+
+  function renderTable(){
+    // While editing: DO NOT sort (stable typing)
+    const source = getActiveRows().map(r=>({ ...r, kpi: calc(r) }));
+    const active = (editMode && ui.view === "month") ? source : source.sort((a,b)=>a.kpi.finalKpi-b.kpi.finalKpi);
+
+    const editable = editMode && ui.view==="month" && isAdmin();
+    tbody.innerHTML="";
+
+    function mkInput(field, value, id){
+      return `<input class="cell-input" type="text" inputmode="numeric"
+              value="${Number(value||0)}" data-id="${id}" data-field="${field}">`;
+    }
+
+    active.forEach((r,idx)=>{
+      const tr=document.createElement("tr");
+      tr.dataset.rowid = String(r.id);
+
+      tr.innerHTML=`
+        <td class="rank">${idx+1}</td>
+        <td><b>${escapeHtml(r.name)}</b></td>
+        <td>${editable ? mkInput("teamMembers", r.teamMembers, r.id) : r.teamMembers}</td>
+        <td>${editable ? mkInput("trucks", r.trucks, r.id) : r.trucks}</td>
+        <td>${editable ? mkInput("cleanInspections", r.cleanInspections, r.id) : r.cleanInspections}</td>
+        <td>${editable ? mkInput("totalInspections", r.totalInspections, r.id) : r.totalInspections}</td>
+        <td>${editable ? mkInput("violationPoints", r.violationPoints, r.id) : r.violationPoints}</td>
+        <td class="mono" data-kpi="staffTrucks">${r.kpi.staffTrucks.toFixed(2)}</td>
+        <td class="mono" data-kpi="cleanPen">${r.kpi.cleanPen.toFixed(2)}</td>
+        <td class="mono" data-kpi="violRatePen">${r.kpi.violRatePen.toFixed(2)}</td>
+        <td class="mono" data-kpi="violPointPen">${r.kpi.violPointPen.toFixed(2)}</td>
+        <td class="mono" data-kpi="finalKpi"><b>${r.kpi.finalKpi.toFixed(2)}</b></td>
+        <td data-kpi="status"><span class="status ${statusClass(r.kpi.status)}">${r.kpi.status}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderAll(){
+    renderSummaryTop();
+    renderTable();
+  }
+
+  function updateRowKpiCells(rowId){
+    const active = getActiveRows();
+    const item = active.find(x => String(x.id) === String(rowId));
+    if(!item) return;
+    const k = calc(item);
+    const tr = tbody.querySelector(`tr[data-rowid="${rowId}"]`);
+    if(!tr) return;
+
+    const setCell = (key, html) => {
+      const td = tr.querySelector(`[data-kpi="${key}"]`);
+      if(td) td.innerHTML = html;
+    };
+    setCell("staffTrucks", k.staffTrucks.toFixed(2));
+    setCell("cleanPen", k.cleanPen.toFixed(2));
+    setCell("violRatePen", k.violRatePen.toFixed(2));
+    setCell("violPointPen", k.violPointPen.toFixed(2));
+    setCell("finalKpi", `<b>${k.finalKpi.toFixed(2)}</b>`);
+    setCell("status", `<span class="status ${statusClass(k.status)}">${k.status}</span>`);
+  }
+
+  let _summaryRAF = 0;
+  function requestSummaryRefresh(){
+    cancelAnimationFrame(_summaryRAF);
+    _summaryRAF = requestAnimationFrame(()=>renderSummaryTop());
+  }
+
+  tbody.addEventListener("input",(e)=>{
+    const t = e.target;
+    if(!t.classList.contains("cell-input")) return;
+    if(!editMode) return;
+    if(!isAdmin()) return;
+
+    t.value = t.value.replace(/[^\d]/g,"");
+
+    const id = t.dataset.id;
+    const field = t.dataset.field;
+    const val = Number(t.value || 0);
+
+    const item = draftRows.find(x => String(x.id) === String(id));
+    if(!item) return;
+
+    item[field] = val;
+
+    updateRowKpiCells(id);
+    requestSummaryRefresh();
+  });
+
+  // Downloads
+  document.getElementById("btnDownloadExcel").addEventListener("click",()=>{
+    const active=getActiveRows().map(r=>({ ...r, kpi:calc(r)})).sort((a,b)=>a.kpi.finalKpi-b.kpi.finalKpi);
+    const type = ui.view;
+    const period = (type==="month") ? `${ui.year}-${String(ui.month).padStart(2,"0")}` : `${ui.year} Q${ui.quarter}`;
+    const header=["View","Period","Block","TeamMembers","Trucks","Clean","Total","ViolationPoints","StaffTrucks","CleanPen","ViolRatePen","ViolPointPen","FinalKPI","Status"];
+    const lines=[header.join(",")];
+    active.forEach(r=>{
+      lines.push([
+        type,period,r.name,r.teamMembers,r.trucks,r.cleanInspections,r.totalInspections,r.violationPoints,
+        r.kpi.staffTrucks,r.kpi.cleanPen,r.kpi.violRatePen,r.kpi.violPointPen,r.kpi.finalKpi,r.kpi.status.replace(/,/g," ")
+      ].join(","));
+    });
+    const blob=new Blob([lines.join("\n")],{type:"text/csv;charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url;
+    a.download=`Zero-Violations-${CURRENT_USER.username}-${type}-${period.replaceAll(" ","-")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+  document.getElementById("btnDownloadPdf").addEventListener("click",()=>window.print());
+
+  // =========================
+  // SNOW (slow, real snowflake)
+  // =========================
+  (function initSnow(){
+    const canvas = document.getElementById("snowCanvas");
+    const ctx = canvas.getContext("2d", { alpha:true });
+
+    function resize(){
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      canvas.width = Math.floor(window.innerWidth * dpr);
+      canvas.height = Math.floor(window.innerHeight * dpr);
+      canvas.style.width = window.innerWidth + "px";
+      canvas.style.height = window.innerHeight + "px";
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const flakes=[];
+    const MAX=55;
+    const rand=(a,b)=>a+Math.random()*(b-a);
+
+    function makeFlake(fromTop=true){
+      const size = rand(5.5, 11.5);
+      return { x:rand(0,innerWidth), y:fromTop?rand(-innerHeight,0):rand(0,innerHeight),
+               s:size, vy:rand(0.18,0.55), vx:rand(-0.03,0.03),
+               rot:rand(0,Math.PI*2), vr:rand(-0.003,0.003),
+               alpha:rand(0.55,0.95), thick:rand(1.1,1.7) };
+    }
+    for(let i=0;i<MAX;i++) flakes.push(makeFlake(false));
+
+    function drawSnowflake(x,y,size,rot,alpha,thick){
+      ctx.save();
+      ctx.translate(x,y);
+      ctx.rotate(rot);
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = thick;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "rgba(255,255,255,1)";
+
+      const arms=6;
+      for(let i=0;i<arms;i++){
+        ctx.save();
+        ctx.rotate((Math.PI*2/arms)*i);
+
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(0,-size);
+        ctx.stroke();
+
+        const b1=size*0.35, b2=size*0.55;
+
+        ctx.beginPath();
+        ctx.moveTo(0,-b1);
+        ctx.lineTo(size*0.22,-b1 - size*0.14);
+        ctx.moveTo(0,-b1);
+        ctx.lineTo(-size*0.22,-b1 - size*0.14);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(0,-b2);
+        ctx.lineTo(size*0.26,-b2 - size*0.18);
+        ctx.moveTo(0,-b2);
+        ctx.lineTo(-size*0.26,-b2 - size*0.18);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      ctx.globalAlpha = alpha*0.9;
+      ctx.beginPath();
+      ctx.arc(0,0,size*0.10,0,Math.PI*2);
+      ctx.fillStyle="rgba(255,255,255,1)";
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    let last=performance.now();
+    function frame(t){
+      const dt=Math.min(32, t-last);
+      last=t;
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+
+      if(!snowEnabled){ requestAnimationFrame(frame); return; }
+
+      for(const f of flakes){
+        f.y += f.vy*(dt/16);
+        f.x += f.vx*(dt/16);
+        f.rot += f.vr*dt;
+
+        if(f.x < -20) f.x = innerWidth + 20;
+        if(f.x > innerWidth + 20) f.x = -20;
+
+        if(f.y > innerHeight + 20){
+          f.x=rand(0,innerWidth);
+          f.y=rand(-60,-10);
+          f.vy=rand(0.18,0.55);
+          f.vx=rand(-0.03,0.03);
+          f.s=rand(5.5,11.5);
+          f.alpha=rand(0.55,0.95);
+          f.thick=rand(1.1,1.7);
+          f.vr=rand(-0.003,0.003);
+        }
+        drawSnowflake(f.x,f.y,f.s,f.rot,f.alpha,f.thick);
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
+  // =========================
+  // BOOT
+  // =========================
+  async function boot(){
+    const token = getToken();
+    if(!token){
+      showLogin();
+      return;
+    }
+
+    try{
+      // fetch me
+      const me = await api("/api/me", { method:"GET" });
+      CURRENT_USER = me.user;
+      localStorage.setItem(ME_KEY, JSON.stringify(CURRENT_USER));
+
+      // load prefs from backend (apply + store local)
+      const prefs = await api("/api/prefs", { method:"GET" });
+      localStorage.setItem(THEME_MODE_KEY, prefs.theme_mode || "dark");
+      localStorage.setItem(ACCENT_KEY, prefs.accent || "#0B7A4B");
+      localStorage.setItem(FONT_KEY, String(prefs.font_scale ?? 1));
+      localStorage.setItem(SNOW_KEY, (prefs.snow_enabled ? "true":"false"));
+
+      // apply
+      applyThemeByMode(localStorage.getItem(THEME_MODE_KEY) || "dark");
+      buildSwatches();
+      applyAccent(localStorage.getItem(ACCENT_KEY) || "#0B7A4B");
+      applyFontScale(localStorage.getItem(FONT_KEY) || 1);
+      snowEnabled = (localStorage.getItem(SNOW_KEY) ?? "true") === "true";
+      setSnowEnabled(snowEnabled);
+
+      // header labels
+      document.getElementById("menuAvatar").textContent = CURRENT_USER.role === "admin" ? "AD" : "U";
+      document.getElementById("menuName").textContent = CURRENT_USER.role === "admin" ? "Admin" : "Viewer";
+      document.getElementById("menuRole").textContent = CURRENT_USER.role === "admin" ? "Can edit + publish" : "Published only";
+      document.getElementById("topSubtitle").textContent = CURRENT_USER.role === "admin"
+        ? "Zero Violations — Admin (Edit + Publish)"
+        : "Zero Violations — Viewer (Published Only)";
+
+      fillYears();
+      syncSelectors();
+      setView(ui.view || "month");
+    }catch(e){
+      clearToken();
+      showLogin();
+    }
+  }
+
+  // init
+  boot();
+</script>
+</body>
+</html>
