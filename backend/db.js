@@ -1,6 +1,15 @@
-const sqlite3 = require("sqlite3").verbose();
+// MySQL example
+const mysql = require('mysql2');
 
-const db = new sqlite3.Database("./data.sqlite");
+const connection = mysql.createConnection({
+  host: 'mysql.railway.internal', // Railway handles this automatically
+  user: 'root',      // provided by Railway
+  password: 'AaEBPybYsGrfvusxcVoPDTHlBeHhfscJ',  // provided by Railway
+  database: 'railway', // provided by Railway
+});
+
+connection.connect();
+
 
 function initDb() {
   db.serialize(() => {
